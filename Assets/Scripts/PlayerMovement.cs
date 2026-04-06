@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
 
         bool moving = movementInput.magnitude > 0.1f;
 
-        if (moving && !isMoving)
+        if (moving && !isMoving && !isJumping)
         {
             MusicManager.Instance?.StartFootsteps();
         }
@@ -53,12 +53,13 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void OnJump(InputValue value)
+    vvoid OnJump(InputValue value)
     {
         if (value.isPressed && !isJumping)
         {
             rb.AddForce(Vector3.up * 5f, ForceMode.Impulse);
             isJumping = true;
+            MusicManager.Instance?.StopFootsteps();
         }
     }
 
