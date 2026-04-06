@@ -10,6 +10,8 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private bool isMoving = false;
 
+    private bool isJumping = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -53,9 +55,18 @@ public class PlayerMovement : MonoBehaviour
 
     void OnJump(InputValue value)
     {
-        if (value.isPressed)
+        if (value.isPressed && !isJumping)
         {
             rb.AddForce(Vector3.up * 5f, ForceMode.Impulse);
+            isJumping = true;
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isJumping = false;
         }
     }
 }

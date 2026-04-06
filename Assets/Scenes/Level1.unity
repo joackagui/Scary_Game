@@ -928,6 +928,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MusicManager
   level1Music: {fileID: 8300000, guid: 5cf97d9ca86f64a20bb82a1ecff677ef, type: 3}
+  footstepsClip: {fileID: 8300000, guid: 4ff2896a2a80a41f3921dfa011cd267a, type: 3}
 --- !u!4 &1325818859
 Transform:
   m_ObjectHideFlags: 0
