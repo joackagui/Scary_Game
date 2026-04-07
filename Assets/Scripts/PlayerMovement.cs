@@ -53,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    vvoid OnJump(InputValue value)
+    void OnJump(InputValue value)
     {
         if (value.isPressed && !isJumping)
         {

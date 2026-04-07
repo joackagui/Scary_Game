@@ -30,7 +30,7 @@ public class FlashlightMovement : MonoBehaviour
             flashlight.ResetTrigger("Walk");
             flashlight.ResetTrigger("Sprint");
         }
-        if(isSprinting && isMoving){
+        if(isSprinting && !isMoving){
             flashlight.ResetTrigger("Sprint");
             flashlight.SetTrigger("Walk");
         }
