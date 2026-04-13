@@ -6,10 +6,11 @@ public class MusicManager : MonoBehaviour
     public static MusicManager Instance;
 
     public AudioClip level1Music;
-    public AudioClip footstepsClip; // ← Asigna tu clip de pasos en el Inspector
+    public AudioClip footstepsClip;
 
     private AudioSource audioSource;
     private AudioSource footstepsSource;
+    private AudioSource jumpscareSource;   // ← new
 
     private void Awake()
     {
@@ -33,17 +34,18 @@ public class MusicManager : MonoBehaviour
         footstepsSource.playOnAwake = false;
         footstepsSource.clip = footstepsClip;
         footstepsSource.volume = 0.5f;
+
+        // 2D source — always full volume, no spatial falloff
+        jumpscareSource = gameObject.AddComponent<AudioSource>();
+        jumpscareSource.loop         = false;
+        jumpscareSource.playOnAwake  = false;
+        jumpscareSource.spatialBlend = 0f;   // 2D
+        jumpscareSource.volume       = 1f;
+        jumpscareSource.priority     = 0;    // Highest priority, never gets culled
     }
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnEnable()  { SceneManager.sceneLoaded += OnSceneLoaded; }
+    private void OnDisable() { SceneManager.sceneLoaded -= OnSceneLoaded; }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -63,6 +65,15 @@ public class MusicManager : MonoBehaviour
         audioSource.Play();
     }
 
+    // Called by Slender when it catches the player
+    public void PlayJumpscare(AudioClip clip)
+    {
+        audioSource.Stop();         // Cut background music immediately
+        footstepsSource.Stop();
+        jumpscareSource.clip = clip;
+        jumpscareSource.Play();
+    }
+
     public void StartFootsteps()
     {
         if (footstepsClip == null || footstepsSource.isPlaying) return;
@@ -74,6 +85,7 @@ public class MusicManager : MonoBehaviour
         if (footstepsSource.isPlaying)
             footstepsSource.Stop();
     }
+
     public void SetFootstepsPitch(float pitch)
     {
         footstepsSource.pitch = pitch;

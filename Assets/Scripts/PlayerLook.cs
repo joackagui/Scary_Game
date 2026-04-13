@@ -5,6 +5,8 @@ public class PlayerLook : MonoBehaviour
 {
     public float mouseSensitivity = 100f;
     public Transform cam;
+
+    public Camera playerCamera;
     public float xRotation = 0f;
 
     private Vector2 mouseInput;
@@ -13,6 +15,7 @@ public class PlayerLook : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        playerCamera = GetComponentInChildren<Camera>();
     }
 
     void Update()
