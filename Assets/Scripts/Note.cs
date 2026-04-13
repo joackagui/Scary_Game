@@ -1,17 +1,20 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Note : MonoBehaviour
 {
-    public MeshRenderer[] meshRenderers;
-    private Material[] originalMaterials;
     public Material highlightMaterial;
-    private Camera playerCameraPosition;
-    public float highlightDistance = 5f;
-    private PlayerLook player;
-    private bool isLookedAt = false;
+    public TMP_Text areYouSureText;
+    public InputActionReference collectActionReference;
 
-    public InputActionReference interactAction;
+    private MeshRenderer[] meshRenderers;
+    private Material[] originalMaterials;
+    private float lookRange = 3f;
+
+    private PlayerLook player;
+    private Camera playerCamPosition;
+    private bool isLookedAt = false;
 
     void Start()
     {
@@ -21,61 +24,71 @@ public class Note : MonoBehaviour
         {
             originalMaterials[i] = meshRenderers[i].material;
         }
-
         player = FindAnyObjectByType<PlayerLook>();
-        playerCameraPosition = player.GetComponentInChildren<Camera>();
+        playerCamPosition = player.GetComponentInChildren<Camera>();
 
-        interactAction.action.performed += OnInteract;
-        interactAction.action.Enable();
-    }
-
-    void OnDestroy()
-    {
-        if (interactAction != null)
-        {
-            interactAction.action.performed -= OnInteract;
-        }
     }
 
     void Update()
     {
-        Ray ray = new Ray(playerCameraPosition.transform.position, playerCameraPosition.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, highlightDistance))
+        CheckIfLookingAtNote();
+        CollectNote();
+    }
+
+    void CheckIfLookingAtNote()
+    {
+        Ray ray = new Ray(playerCamPosition.transform.position, playerCamPosition.transform.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, lookRange) && hit.collider.gameObject == this.gameObject)
         {
-            if (hit.collider.gameObject == this.gameObject)
+            if (!isLookedAt)
             {
                 isLookedAt = true;
-                SetLookedAt(true);
-            }
-            else
-            {
-                isLookedAt = false;
-                SetLookedAt(false);
+                areYouSureText.gameObject.SetActive(true);
+                IsLookedAt(true);
             }
         }
         else
         {
-            isLookedAt = false;
-            SetLookedAt(false);
+            if (isLookedAt)
+            {
+                isLookedAt = false;
+                areYouSureText.gameObject.SetActive(false);
+                IsLookedAt(false);
+            }
         }
     }
 
-    void SetLookedAt(bool value)
+    public void CollectNote()
     {
-        if (value)
+        if (isLookedAt && collectActionReference.action.WasPressedThisFrame())
+        {
+            if (areYouSureText) 
+            {
+                areYouSureText.gameObject.SetActive(false);
+            }
+            GameManager.Instance.AddNote();
+            Destroy(gameObject);
+        }
+    }
+
+    public void IsLookedAt(bool isLookAt)
+    {
+        isLookedAt = isLookAt;
+        if (isLookedAt)
         {
             foreach (MeshRenderer mr in meshRenderers)
+            {
                 mr.material = highlightMaterial;
+            }
         }
         else
         {
             for (int i = 0; i < meshRenderers.Length; i++)
+            {
                 meshRenderers[i].material = originalMaterials[i];
+                areYouSureText.gameObject.SetActive(false);
+            }
         }
-    }
-
-    void OnInteract(InputAction.CallbackContext context)
-    {
-            Destroy(this.gameObject);
     }
 }

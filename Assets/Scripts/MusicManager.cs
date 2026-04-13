@@ -32,6 +32,7 @@ public class MusicManager : MonoBehaviour
         footstepsSource.loop = true;
         footstepsSource.playOnAwake = false;
         footstepsSource.clip = footstepsClip;
+        footstepsSource.volume = 0.5f;
     }
 
     private void OnEnable()
