@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Slender : MonoBehaviour
@@ -21,6 +22,14 @@ public class Slender : MonoBehaviour
     private float baseSpeed = 0.5f;
     private bool isGameOver = false;
     private float catchDistance = 1.5f;
+
+    [Header("Teleportation")]
+    public Transform[] teleportDestinations;
+    public float teleportTriggerDistance = 25f;
+    public float minTeleportDestinationDistanceFromPlayer = 7f;
+
+    private bool isTeleporting = false;
+    private bool hasTeleportedBecauseTooFar = false;
 
     void Start()
     {
@@ -47,7 +56,7 @@ public class Slender : MonoBehaviour
     {
         if (isGameOver) return;
 
-        if (slenderMesh.enabled)
+        if (slenderMesh.enabled && navMeshAgent.enabled)
         {
             navMeshAgent.SetDestination(player.transform.position);
             float currentVelocity = navMeshAgent.velocity.magnitude;
@@ -59,6 +68,18 @@ public class Slender : MonoBehaviour
         {
             if (spatialSource.isPlaying)
                 spatialSource.Stop();
+        }
+
+        float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+
+        if (distanceToPlayer > teleportTriggerDistance && !isTeleporting)
+        {
+            if (!isTeleporting && !hasTeleportedBecauseTooFar && slenderMesh.enabled)
+                StartCoroutine(TeleportToDestination());
+        }
+        else
+        {
+            hasTeleportedBecauseTooFar = false;
         }
 
         ChangeDifficulty();
@@ -129,5 +150,56 @@ public class Slender : MonoBehaviour
         MusicManager.Instance.PlayJumpscare(jumpscareClip);
 
         GameManager.Instance.TriggerGameOver();
+    }
+
+    private IEnumerator TeleportToDestination()
+    {
+        isTeleporting = true;
+
+        if (navMeshAgent.enabled)
+        {
+            navMeshAgent.isStopped = true;
+            navMeshAgent.ResetPath();
+        }
+
+        Transform selectedDestination = null;
+        float bestDistanceToPlayer = float.MaxValue;
+
+        for (int i = 0; i < teleportDestinations.Length; i++)
+        {
+            Transform destination = teleportDestinations[i];
+            if (destination == null)
+                continue;
+
+            float distanceToPlayer = Vector3.Distance(player.transform.position, destination.position);
+            if (distanceToPlayer < minTeleportDestinationDistanceFromPlayer)
+                continue;
+
+            if (distanceToPlayer < bestDistanceToPlayer)
+            {
+                bestDistanceToPlayer = distanceToPlayer;
+                selectedDestination = destination;
+            }
+        }
+
+        if (selectedDestination != null)
+        {
+            if (navMeshAgent.enabled)
+            {
+                navMeshAgent.Warp(selectedDestination.position);
+            }
+            else
+            {
+                transform.position = selectedDestination.position;
+            }
+        }
+
+        hasTeleportedBecauseTooFar = true;
+        yield return new WaitForSeconds(5f);
+
+        if (navMeshAgent.enabled)
+            navMeshAgent.isStopped = false;
+
+        isTeleporting = false;
     }
 }

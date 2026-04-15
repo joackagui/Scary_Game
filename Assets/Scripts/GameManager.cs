@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     {
         notesCount++;
 
-        if (notesCount >= 10)
+        if (notesCount >= 5)
             TriggerGameOver();
     }
 
