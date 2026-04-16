@@ -32,6 +32,6 @@ crashlytics-build.properties
 *.apk
 *.aab
 *.unitypackage
-*.appAssets/Videos/*.mp4
+*.app
 Assets/Videos/*.mp4
 Assets/Videos/*.mp4.meta
