@@ -7,13 +7,12 @@ public class Note : MonoBehaviour
     public Material highlightMaterial;
     public TMP_Text areYouSureText;
     public InputActionReference collectActionReference;
+    public Camera playerCamera;
 
     private MeshRenderer[] meshRenderers;
     private Material[] originalMaterials;
     private float lookRange = 3f;
 
-    private PlayerLook player;
-    private Camera playerCamPosition;
     private bool isLookedAt = false;
 
     void Start()
@@ -24,9 +23,11 @@ public class Note : MonoBehaviour
         {
             originalMaterials[i] = meshRenderers[i].material;
         }
-        player = FindAnyObjectByType<PlayerLook>();
-        playerCamPosition = player.GetComponentInChildren<Camera>();
-
+        
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+        }
     }
 
     void Update()
@@ -37,7 +38,7 @@ public class Note : MonoBehaviour
 
     void CheckIfLookingAtNote()
     {
-        Ray ray = new Ray(playerCamPosition.transform.position, playerCamPosition.transform.forward);
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
         if (Physics.Raycast(ray, out RaycastHit hit, lookRange) && hit.collider.gameObject == this.gameObject)
         {
@@ -87,7 +88,7 @@ public class Note : MonoBehaviour
             for (int i = 0; i < meshRenderers.Length; i++)
             {
                 meshRenderers[i].material = originalMaterials[i];
-                areYouSureText.gameObject.SetActive(false);
+                //areYouSureText.gameObject.SetActive(false);
             }
         }
     }
